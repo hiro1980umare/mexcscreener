@@ -39,6 +39,16 @@ except Exception:
     watch = {}
 JST = timezone(timedelta(hours=9))
 
+# ---- 第3段階（反発確認）の設定 ----
+REBOUND_FILE = "rebound.json"
+REBOUND_EXPIRE = 3 * 3600
+BREAK_BY = "high"   # "high"=確定足の高値で判定 / "close"=確定足の終値で判定
+try:
+    with open(REBOUND_FILE) as f:
+        rebound = json.load(f)
+except Exception:
+    rebound = {}
+
 def fmt_time(ts):
     return datetime.fromtimestamp(ts, JST).strftime("%m/%d %H:%M")
 # ------------------------------------------
@@ -122,13 +132,19 @@ def make_text(r, ts):
     ]
     return "\n".join(lines)
 
-# ---- 第2段階：ヒット後の追跡 ----
+# ---- ローソク足の補助 ----
 def open_ms(x):
     t = int(x[0])
     if t < 10**11:
         t = t * 1000
     return t
 
+def confirmed(k, now):
+    # 15分が経過して確定した足だけを返す（形成中の足は除く）
+    limit = now * 1000 - 5000
+    return [x for x in k if open_ms(x) + 900000 <= limit]
+
+# ---- 第2段階：ヒット後の追跡 ----
 def check_watch(now):
     for sym in list(watch.keys()):
         w = watch[sym]
@@ -173,9 +189,104 @@ def check_watch(now):
             code = send(text)
             print("下げ止まり通知:", sym, code)
             if code == 200:
+                # 第3段階へ引き継ぎ：この時点で確定している最新足の高値を基準にする
+                conf = confirmed(k, now)
+                if len(conf) > 0:
+                    ref = conf[-1]
+                    rebound[sym] = {
+                        "t2": now,
+                        "hit_ts": w["hit_ts"],
+                        "hit_low": w["hit_low"],
+                        "rmin": w.get("rmin"),
+                        "vmax": w.get("vmax"),
+                        "ref_high": float(ref[2]),
+                        "ref_open_ms": open_ms(ref),
+                    }
                 del watch[sym]
         else:
             print("監視中:", sym)
+
+# ---- 第3段階：反発確認 ----
+def check_rebound(now):
+    for sym in list(rebound.keys()):
+        w = rebound[sym]
+        if now - w["t2"] >= REBOUND_EXPIRE:
+            print("反発待ち期限切れ:", sym)
+            del rebound[sym]
+            continue
+        try:
+            k = requests.get(BASE+"/api/v3/klines",
+                params={"symbol": sym, "interval": "15m", "limit": 100},
+                timeout=20).json()
+            if not isinstance(k, list):
+                continue
+            if len(k) == 0:
+                continue
+            conf = confirmed(k, now)
+            price = float(k[-1][4])
+        except Exception as e:
+            print("反発追跡エラー:", sym, e)
+            continue
+
+        found = None
+        for i, x in enumerate(conf):
+            if open_ms(x) <= w["ref_open_ms"]:
+                continue
+            if BREAK_BY == "close":
+                level = float(x[4])
+            else:
+                level = float(x[2])
+            if level > w["ref_high"]:
+                found = (i, x, level)
+                break
+
+        if found is None:
+            print("反発待ち:", sym)
+            continue
+
+        i, x, level = found
+        vol = float(x[5])
+        if i >= 20:
+            avg = sum(float(y[5]) for y in conf[i-20:i]) / 20
+        else:
+            avg = 0
+        ratio = vol / avg if avg > 0 else 0
+
+        r_rsi = w.get("rmin")
+        r_vol = w.get("vmax")
+        rsi_text = f"{r_rsi:.1f}" if r_rsi is not None else "不明"
+        vol_text = f"{r_vol:.2f}x" if r_vol is not None else "不明"
+
+        text = "\n".join([
+            "🟢 反発確認",
+            "",
+            "銘柄: " + sym[:-4] + "/USDT",
+            "",
+            "第1段階:",
+            f"RSI: {rsi_text}",
+            f"出来高倍率: {vol_text}",
+            "ヒット時刻: " + fmt_time(w["hit_ts"]),
+            "",
+            "第2段階:",
+            "下げ止まり確認: " + fmt_time(w["t2"]),
+            "監視時間: 30分",
+            "",
+            "第3段階:",
+            f"突破価格: {level}",
+            f"直前高値: {w['ref_high']}",
+            f"現在価格: {price}",
+            "",
+            f"突破時出来高: {vol:,.0f}",
+            f"20本平均: {avg:,.0f}",
+            f"出来高倍率: {ratio:.2f}x",
+            "",
+            "判定: 反発確認・買い候補",
+            "※注文は出していません。買いシグナルではなく確認材料です",
+        ])
+        code = send(text)
+        print("反発確認通知:", sym, code)
+        if code == 200:
+            del rebound[sym]
 # ------------------------------------------
 
 tick = requests.get(BASE+"/api/v3/ticker/24hr", timeout=20).json()
@@ -250,6 +361,7 @@ now = time.time()
 notified = {k: v for k, v in notified.items() if now - v < COOLDOWN}
 
 check_watch(now)
+check_rebound(now)
 
 sent = 0
 for r in hits:
@@ -266,6 +378,8 @@ for r in hits:
             "hit_ts": now,
             "hit_low": r["hitlow"],
             "hit_price": r["price"],
+            "rmin": r["rmin"],
+            "vmax": r["vmax"],
         }
     sent += 1
 
@@ -273,6 +387,8 @@ with open(STATE_FILE, "w") as f:
     json.dump(notified, f)
 with open(WATCH_FILE, "w") as f:
     json.dump(watch, f)
+with open(REBOUND_FILE, "w") as f:
+    json.dump(rebound, f)
 
 if TEST_MODE and sent == 0:
     code = send(f"スキャン完了：対象{len(rows)}銘柄、該当{len(hits)}銘柄（通知なし）")
