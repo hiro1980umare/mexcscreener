@@ -1,5 +1,6 @@
 import os
 import time
+import json
 import requests
 
 TOKEN = os.environ.get("TG_TOKEN", "").strip()
@@ -17,6 +18,14 @@ LOOKBACK = 4
 VOL_DANGER = 20.0
 DANGER_QV = 2_000_000
 MAX_NOTIFY = 5
+
+STATE_FILE = "notified.json"
+COOLDOWN = 2 * 3600
+try:
+    with open(STATE_FILE) as f:
+        notified = json.load(f)
+except Exception:
+    notified = {}
 
 API = "https://api.telegram.org/bot" + TOKEN
 
@@ -161,11 +170,24 @@ hits.sort(key=lambda x: x["rmin"])
 print("対象銘柄数:", len(rows))
 print("該当:", len(hits), "銘柄")
 
+now = time.time()
+notified = {k: v for k, v in notified.items() if now - v < COOLDOWN}
+
 sent = 0
-for r in hits[:MAX_NOTIFY]:
+for r in hits:
+    if sent >= MAX_NOTIFY:
+        break
+    if r["sym"] in notified:
+        print("通知済みのためスキップ:", r["sym"])
+        continue
     code = send(make_text(r))
     print("通知:", r["sym"], code)
+    if code == 200:
+        notified[r["sym"]] = now
     sent += 1
+
+with open(STATE_FILE, "w") as f:
+    json.dump(notified, f)
 
 if TEST_MODE and sent == 0:
     code = send(f"スキャン完了：対象{len(rows)}銘柄、該当{len(hits)}銘柄（通知なし）")
