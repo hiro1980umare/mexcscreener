@@ -7,15 +7,15 @@
   "qty": 32.38341968911917,
   "buy_fee": 0.001,
   "break_level": 0.031894,
-  "high": 0.038098,
+  "high": 0.04002,
   "low": 0.028072,
-  "last_price": 0.038098,
+  "last_price": 0.04002,
   "now": {
-   "price": 0.038098,
-   "value": 1.233744,
-   "pnl": 0.23151,
-   "pnl_pct": 23.151,
-   "elapsed_hours": 4.03
+   "price": 0.04002,
+   "value": 1.295984,
+   "pnl": 0.293688,
+   "pnl_pct": 29.3688,
+   "elapsed_hours": 4.25
   }
  },
  {
@@ -28,13 +28,13 @@
   "break_level": 0.0116048,
   "high": 0.01167,
   "low": 0.0115992,
-  "last_price": 0.0116386,
+  "last_price": 0.0116029,
   "now": {
-   "price": 0.0116386,
-   "value": 1.003397,
-   "pnl": 0.001393,
-   "pnl_pct": 0.1393,
-   "elapsed_hours": 3.3
+   "price": 0.0116029,
+   "value": 1.000319,
+   "pnl": -0.001681,
+   "pnl_pct": -0.1681,
+   "elapsed_hours": 3.53
   }
  },
  {
@@ -47,13 +47,13 @@
   "break_level": 4.494e-06,
   "high": 4.514e-06,
   "low": 4.473e-06,
-  "last_price": 4.514e-06,
+  "last_price": 4.48e-06,
   "now": {
-   "price": 4.514e-06,
-   "value": 1.009166,
-   "pnl": 0.007157,
-   "pnl_pct": 0.7157,
-   "elapsed_hours": 0.26
+   "price": 4.48e-06,
+   "value": 1.001565,
+   "pnl": -0.000437,
+   "pnl_pct": -0.0437,
+   "elapsed_hours": 0.48
   }
  }
 ]
