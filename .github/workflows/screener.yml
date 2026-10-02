@@ -1,5 +1,7 @@
 name: screener
 on:
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 jobs:
   run:
@@ -14,4 +16,4 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          TEST_MODE: "1"
+          TEST_MODE: "0"
