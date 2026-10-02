@@ -2,6 +2,7 @@ import os
 import time
 import json
 import requests
+import paper
 from datetime import datetime, timezone, timedelta
 
 TOKEN = os.environ.get("TG_TOKEN", "").strip()
@@ -42,7 +43,7 @@ JST = timezone(timedelta(hours=9))
 # ---- 第3段階（反発確認）の設定 ----
 REBOUND_FILE = "rebound.json"
 REBOUND_EXPIRE = 3 * 3600
-BREAK_BY = "high"   # "high"=確定足の高値で判定 / "close"=確定足の終値で判定
+BREAK_BY = "high"
 try:
     with open(REBOUND_FILE) as f:
         rebound = json.load(f)
@@ -51,7 +52,6 @@ except Exception:
 
 def fmt_time(ts):
     return datetime.fromtimestamp(ts, JST).strftime("%m/%d %H:%M")
-# ------------------------------------------
 
 API = "https://api.telegram.org/bot" + TOKEN
 
@@ -59,6 +59,14 @@ def send(text):
     r = requests.post(API + "/sendMessage",
         data={"chat_id": CHAT, "text": text}, timeout=20)
     return r.status_code
+
+def get_price(sym):
+    try:
+        r = requests.get(BASE+"/api/v3/ticker/price",
+            params={"symbol": sym}, timeout=20).json()
+        return float(r["price"])
+    except Exception:
+        return None
 
 def calc_rsi(closes, n=14):
     gains = []
@@ -140,7 +148,6 @@ def open_ms(x):
     return t
 
 def confirmed(k, now):
-    # 15分が経過して確定した足だけを返す（形成中の足は除く）
     limit = now * 1000 - 5000
     return [x for x in k if open_ms(x) + 900000 <= limit]
 
@@ -286,6 +293,7 @@ def check_rebound(now):
         print("反発確認通知:", sym, code)
         if code == 200:
             del rebound[sym]
+            paper.open_paper(sym, w, price, level, now, send)
 # ------------------------------------------
 
 tick = requests.get(BASE+"/api/v3/ticker/24hr", timeout=20).json()
@@ -361,6 +369,7 @@ notified = {k: v for k, v in notified.items() if now - v < COOLDOWN}
 
 check_watch(now)
 check_rebound(now)
+paper.check_paper(now, get_price, send)
 
 sent = 0
 for r in hits:
@@ -392,3 +401,4 @@ with open(REBOUND_FILE, "w") as f:
 if TEST_MODE and sent == 0:
     code = send(f"スキャン完了：対象{len(rows)}銘柄、該当{len(hits)}銘柄（通知なし）")
     print("テスト通知:", code)
+# END
