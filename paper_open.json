@@ -9,13 +9,13 @@
   "break_level": 0.031894,
   "high": 0.041751,
   "low": 0.028072,
-  "last_price": 0.037793,
+  "last_price": 0.037082,
   "now": {
-   "price": 0.037793,
-   "value": 1.223867,
-   "pnl": 0.221643,
-   "pnl_pct": 22.1643,
-   "elapsed_hours": 9.97
+   "price": 0.037082,
+   "value": 1.200842,
+   "pnl": 0.198641,
+   "pnl_pct": 19.8641,
+   "elapsed_hours": 10.18
   }
  },
  {
@@ -27,14 +27,14 @@
   "buy_fee": 0.001,
   "break_level": 0.0116048,
   "high": 0.01167,
-  "low": 0.0111778,
-  "last_price": 0.0111801,
+  "low": 0.0111393,
+  "last_price": 0.0111393,
   "now": {
-   "price": 0.0111801,
-   "value": 0.963868,
-   "pnl": -0.038096,
-   "pnl_pct": -3.8096,
-   "elapsed_hours": 9.25
+   "price": 0.0111393,
+   "value": 0.960351,
+   "pnl": -0.04161,
+   "pnl_pct": -4.161,
+   "elapsed_hours": 9.46
   }
  },
  {
@@ -47,13 +47,13 @@
   "break_level": 4.494e-06,
   "high": 4.514e-06,
   "low": 4.141e-06,
-  "last_price": 4.2e-06,
+  "last_price": 4.173e-06,
   "now": {
-   "price": 4.2e-06,
-   "value": 0.938967,
-   "pnl": -0.062972,
-   "pnl_pct": -6.2972,
-   "elapsed_hours": 6.2
+   "price": 4.173e-06,
+   "value": 0.932931,
+   "pnl": -0.069002,
+   "pnl_pct": -6.9002,
+   "elapsed_hours": 6.41
   }
  },
  {
@@ -66,13 +66,13 @@
   "break_level": 2.567,
   "high": 2.563,
   "low": 2.473,
-  "last_price": 2.487,
+  "last_price": 2.483,
   "now": {
-   "price": 2.487,
-   "value": 0.971105,
-   "pnl": -0.030866,
-   "pnl_pct": -3.0866,
-   "elapsed_hours": 3.23
+   "price": 2.483,
+   "value": 0.969543,
+   "pnl": -0.032426,
+   "pnl_pct": -3.2426,
+   "elapsed_hours": 3.44
   }
  },
  {
@@ -85,13 +85,89 @@
   "break_level": 1.457307,
   "high": 1.452475,
   "low": 1.424448,
-  "last_price": 1.442345,
+  "last_price": 1.44118,
   "now": {
-   "price": 1.442345,
-   "value": 0.993026,
-   "pnl": -0.008967,
-   "pnl_pct": -0.8967,
-   "elapsed_hours": 2.02
+   "price": 1.44118,
+   "value": 0.992224,
+   "pnl": -0.009769,
+   "pnl_pct": -0.9769,
+   "elapsed_hours": 2.24
+  }
+ },
+ {
+  "id": "XRPUSDT_1790967931",
+  "sym": "XRPUSDT",
+  "buy_ts": 1790970799.2672682,
+  "buy_price": 1.4703,
+  "qty": 0.6801333061280012,
+  "buy_fee": 0.001,
+  "break_level": 1.4729,
+  "high": 1.4703,
+  "low": 1.4703,
+  "last_price": 1.4703,
+  "now": {
+   "price": 1.4703,
+   "value": 1.0,
+   "pnl": -0.002,
+   "pnl_pct": -0.2,
+   "elapsed_hours": 0.0
+  }
+ },
+ {
+  "id": "BCHUSDT_1790967931",
+  "sym": "BCHUSDT",
+  "buy_ts": 1790970799.2672682,
+  "buy_price": 303.9,
+  "qty": 0.003290556103981573,
+  "buy_fee": 0.001,
+  "break_level": 304.1,
+  "high": 303.9,
+  "low": 303.9,
+  "last_price": 303.9,
+  "now": {
+   "price": 303.9,
+   "value": 1.0,
+   "pnl": -0.002,
+   "pnl_pct": -0.2,
+   "elapsed_hours": 0.0
+  }
+ },
+ {
+  "id": "TRUMPUSDT_1790967931",
+  "sym": "TRUMPUSDT",
+  "buy_ts": 1790970799.2672682,
+  "buy_price": 2.006,
+  "qty": 0.49850448654037893,
+  "buy_fee": 0.001,
+  "break_level": 2.008,
+  "high": 2.007,
+  "low": 2.006,
+  "last_price": 2.007,
+  "now": {
+   "price": 2.007,
+   "value": 1.000499,
+   "pnl": -0.001502,
+   "pnl_pct": -0.1502,
+   "elapsed_hours": 0.0
+  }
+ },
+ {
+  "id": "CAKEUSDT_1790967931",
+  "sym": "CAKEUSDT",
+  "buy_ts": 1790970799.2672682,
+  "buy_price": 2.483,
+  "qty": 0.4027386226339106,
+  "buy_fee": 0.001,
+  "break_level": 2.489,
+  "high": 2.483,
+  "low": 2.483,
+  "last_price": 2.483,
+  "now": {
+   "price": 2.483,
+   "value": 1.0,
+   "pnl": -0.002,
+   "pnl_pct": -0.2,
+   "elapsed_hours": 0.0
   }
  }
 ]
