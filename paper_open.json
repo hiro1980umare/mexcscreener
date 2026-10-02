@@ -8,14 +8,33 @@
   "buy_fee": 0.001,
   "break_level": 0.031894,
   "high": 0.031066,
-  "low": 0.030631,
-  "last_price": 0.031066,
+  "low": 0.029364,
+  "last_price": 0.029364,
   "now": {
-   "price": 0.031066,
-   "value": 1.006023,
-   "pnl": 0.004017,
-   "pnl_pct": 0.4017,
-   "elapsed_hours": 0.36
+   "price": 0.029364,
+   "value": 0.950907,
+   "pnl": -0.051044,
+   "pnl_pct": -5.1044,
+   "elapsed_hours": 0.72
+  }
+ },
+ {
+  "id": "RAINUSDT_1790933260",
+  "sym": "RAINUSDT",
+  "buy_ts": 1790936741.7001495,
+  "buy_price": 0.0115992,
+  "qty": 86.21284226498379,
+  "buy_fee": 0.001,
+  "break_level": 0.0116048,
+  "high": 0.0115992,
+  "low": 0.0115992,
+  "last_price": 0.0115992,
+  "now": {
+   "price": 0.0115992,
+   "value": 1.0,
+   "pnl": -0.002,
+   "pnl_pct": -0.2,
+   "elapsed_hours": 0.0
   }
  }
 ]
