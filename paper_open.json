@@ -7,15 +7,15 @@
   "qty": 32.38341968911917,
   "buy_fee": 0.001,
   "break_level": 0.031894,
-  "high": 0.04002,
+  "high": 0.040603,
   "low": 0.028072,
-  "last_price": 0.036448,
+  "last_price": 0.040603,
   "now": {
-   "price": 0.036448,
-   "value": 1.180311,
-   "pnl": 0.178131,
-   "pnl_pct": 17.8131,
-   "elapsed_hours": 6.38
+   "price": 0.040603,
+   "value": 1.314864,
+   "pnl": 0.312549,
+   "pnl_pct": 31.2549,
+   "elapsed_hours": 6.74
   }
  },
  {
@@ -28,13 +28,13 @@
   "break_level": 0.0116048,
   "high": 0.01167,
   "low": 0.0114335,
-  "last_price": 0.011455,
+  "last_price": 0.0114364,
   "now": {
-   "price": 0.011455,
-   "value": 0.987568,
-   "pnl": -0.014419,
-   "pnl_pct": -1.4419,
-   "elapsed_hours": 5.65
+   "price": 0.0114364,
+   "value": 0.985965,
+   "pnl": -0.016021,
+   "pnl_pct": -1.6021,
+   "elapsed_hours": 6.02
   }
  },
  {
@@ -47,13 +47,32 @@
   "break_level": 4.494e-06,
   "high": 4.514e-06,
   "low": 4.396e-06,
-  "last_price": 4.424e-06,
+  "last_price": 4.413e-06,
   "now": {
-   "price": 4.424e-06,
-   "value": 0.989045,
-   "pnl": -0.012944,
-   "pnl_pct": -1.2944,
-   "elapsed_hours": 2.61
+   "price": 4.413e-06,
+   "value": 0.986586,
+   "pnl": -0.0154,
+   "pnl_pct": -1.54,
+   "elapsed_hours": 2.97
+  }
+ },
+ {
+  "id": "CAKEUSDT_1790953971",
+  "sym": "CAKEUSDT",
+  "buy_ts": 1790958405.1462207,
+  "buy_price": 2.561,
+  "qty": 0.39047247169074584,
+  "buy_fee": 0.001,
+  "break_level": 2.567,
+  "high": 2.561,
+  "low": 2.561,
+  "last_price": 2.561,
+  "now": {
+   "price": 2.561,
+   "value": 1.0,
+   "pnl": -0.002,
+   "pnl_pct": -0.2,
+   "elapsed_hours": 0.0
   }
  }
 ]
