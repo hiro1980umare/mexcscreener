@@ -7,15 +7,15 @@
   "qty": 32.38341968911917,
   "buy_fee": 0.001,
   "break_level": 0.031894,
-  "high": 0.036189,
+  "high": 0.037245,
   "low": 0.028072,
-  "last_price": 0.036189,
+  "last_price": 0.037245,
   "now": {
-   "price": 0.036189,
-   "value": 1.171924,
-   "pnl": 0.169752,
-   "pnl_pct": 16.9752,
-   "elapsed_hours": 3.44
+   "price": 0.037245,
+   "value": 1.20612,
+   "pnl": 0.203914,
+   "pnl_pct": 20.3914,
+   "elapsed_hours": 3.77
   }
  },
  {
@@ -28,13 +28,32 @@
   "break_level": 0.0116048,
   "high": 0.01167,
   "low": 0.0115992,
-  "last_price": 0.01165,
+  "last_price": 0.0116311,
   "now": {
-   "price": 0.01165,
-   "value": 1.00438,
-   "pnl": 0.002375,
-   "pnl_pct": 0.2375,
-   "elapsed_hours": 2.71
+   "price": 0.0116311,
+   "value": 1.00275,
+   "pnl": 0.000747,
+   "pnl_pct": 0.0747,
+   "elapsed_hours": 3.05
+  }
+ },
+ {
+  "id": "PEPEUSDT_1790944290",
+  "sym": "PEPEUSDT",
+  "buy_ts": 1790947707.134122,
+  "buy_price": 4.473e-06,
+  "qty": 223563.60384529398,
+  "buy_fee": 0.001,
+  "break_level": 4.494e-06,
+  "high": 4.473e-06,
+  "low": 4.473e-06,
+  "last_price": 4.473e-06,
+  "now": {
+   "price": 4.473e-06,
+   "value": 1.0,
+   "pnl": -0.002,
+   "pnl_pct": -0.2,
+   "elapsed_hours": 0.0
   }
  }
 ]
