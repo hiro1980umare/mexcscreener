@@ -22,17 +22,29 @@ jobs:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           TEST_MODE: "0"
+      - name: report
+        continue-on-error: true
+        run: python report.py
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
       - name: save state
         run: |
           git config user.name "bot"
           git config user.email "bot@users.noreply.github.com"
-          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json; do
+          mkdir -p /tmp/state
+          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json report_state.json; do
+            if [ -f "$f" ]; then cp "$f" /tmp/state/; fi
+          done
+          git fetch origin ${{ github.ref_name }}
+          git reset --hard origin/${{ github.ref_name }}
+          cp /tmp/state/* . 2>/dev/null || true
+          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json report_state.json; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if git diff --cached --quiet; then
             echo "変更なし"
           else
             git commit -m "update state"
-            git pull --rebase origin ${{ github.ref_name }} || true
             git push
           fi
