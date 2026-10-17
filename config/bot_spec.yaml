@@ -1,0 +1,40 @@
+# =====================================================================
+# bot_spec.yaml -- 通知Botの仕様（研究報告書 docs/research_report.md 第10章に対応）
+# 凍結: freeze_bot.py でハッシュを記録。変更すると起動時の検査で実行が止まる。
+# 位置づけ: 候補リスト・監視ツール。将来リターンの優位性は確認されていない。
+# =====================================================================
+version: "1.0"
+research_report: docs/research_report.md
+rules:
+  timing_v1: config/rules_v1.yaml       # Timing(v1)と、決算前ルール(earnings)
+  v2b: config/rules_v2b.yaml            # Gate・Quality(V2b)・判定表
+
+display:
+  max_items_quality_high: 10            # Quality高 x Timing高(V2判定A)
+  max_items_quality_undetermined: 5     # Timing高だがQuality判定不能(判定不能と明示)
+  order: "Timingスコアの降順、同点はQuality順位(良い順。判定不能は最後)、それも同じなら銘柄コード順(期待リターンの順位ではない)"
+
+earnings:
+  rule_source: "rules_v1.yaml の earnings (決算まで7日以内なら評価を1段階下げて表示)"
+  lookahead_days: 120
+  conflict_days: 3                      # 2つの情報源の日付がこれ以上ずれたら『不一致』(早いほうを表示)
+
+universe:
+  file: config/bot_universe.csv         # 対象銘柄(週1回更新)。ticker列を持つCSV
+prices:
+  lookback_calendar_days: 450           # 指標(252営業日)に必要な株価の期間
+sec:
+  dir: data_v2/sec_v2b
+  warn_age_days: 10                     # SEC財務キャッシュがこれより古いときは通知文に明記
+data_freshness:
+  max_age_calendar_days: 5              # 最新の株価がこれより古ければ通知しない
+
+records_dir: bot_records
+
+language:
+  # 通知文にこれらの表現が1つでも含まれたら、送信しない(優位性が確認されていないため)
+  forbidden: ["勝てる", "高確率", "必ず", "確実", "儲か", "もうか", "おすすめ", "オススメ", "推奨します", "買い時", "買うべき", "買い場",
+              "上昇する", "上がる", "値上がり", "利益が出る", "有望", "お宝", "急騰する"]
+disclaimer:
+  top: "※この判定に、将来リターンの優位性は確認されていません(研究報告書 v1.0)。売買の推奨ではなく、条件に該当した銘柄の一覧です。"
+  bottom: "※過去データの検証では、全銘柄を等金額で持つ方法を上回る差は示せませんでした。投資判断はご自身で行ってください。"

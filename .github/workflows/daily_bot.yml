@@ -1,0 +1,53 @@
+name: daily-candidates-bot
+# 米国市場の引け後(平日 22:30 UTC)に実行。候補リスト・監視ツール(優位性は確認されていない)。
+# ★私の環境では実行できないため、このファイルは未検証です。最初は workflow_dispatch で dry_run=true で試してください。
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true: 送信せず、記録(dryrun_)だけ保存"
+        type: boolean
+        default: true
+permissions:
+  contents: write
+concurrency:
+  group: daily-bot
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: SEC財務キャッシュを復元(週次ジョブが更新)
+        uses: actions/cache/restore@v4
+        with:
+          path: data_v2/sec_v2b
+          key: sec-v2b-none
+          restore-keys: sec-v2b-
+      - name: Bot実行(凍結ファイルの検査 → 判定 → 記録 → 送信)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
+            python run_bot.py --dry-run --write-records
+          else
+            python run_bot.py
+          fi
+      - name: 記録をコミット(後から実際の成績を検証するため)
+        if: always()
+        run: |
+          git add bot_records || true
+          if ! git diff --cached --quiet; then
+            git config user.name "bot"; git config user.email "bot@users.noreply.github.com"
+            git commit -m "bot records $(date -u +%F)"; git push
+          fi

@@ -1,0 +1,25 @@
+{
+ "rules_version": "v1",
+ "period": "dev",
+ "rules_sha256": "d40847b9f96836a320f8a44c7b470270e2630a608ba818b01d15c8683e30def5",
+ "git_commit": "7432f7d151faf3c1ba066264d3edabb0cc66ab18",
+ "git_clean": true,
+ "signal_range": "2017-07-03 ~ 2022-12-30",
+ "data_end": "2026-10-05",
+ "n_tickers_in_data": 2978,
+ "n_signal_dates": 66,
+ "n_gate_rows": 86774,
+ "run_at": "2026-10-06 15:07:20",
+ "label": "datafix1",
+ "rerun_reason": "データ修正によるv1再実行",
+ "rules_matches_frozen_sha": true,
+ "approved_fixes_applied": [],
+ "n_tickers_used": 2978,
+ "notes": [
+  "時価総額$1B判定は『現在の株式数 x 当時の株価』の推定。現在の上場銘柄だけが対象のため生存者バイアスがあり、絶対成績は実際より良く出る。",
+  "そのため『ALL_GATE(全銘柄ベースライン)』との差を主に見る。AがSPYに勝ってもALL_GATEに勝たなければシグナルの価値は示されていない。",
+  "決算前除外はv1バックテスト未適用(過去の決算日が無い)。Quality(業績・財務)はv1では評価していない。",
+  "3か月・6か月の成績は月次シグナルのリターン期間が重なる。nは多く見えても独立標本数は『日数』列に近い。標準誤差は日付単位で計算。",
+  "費用は片道0.10%を往復で控除。個別株の流動性が低い場面のスリッページは過小評価の可能性。"
+ ]
+}

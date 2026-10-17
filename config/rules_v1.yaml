@@ -1,0 +1,143 @@
+# =====================================================================
+# rules_v1.yaml  --  V1 基準ルール（テクニカルのみ）
+# ---------------------------------------------------------------------
+# 【凍結ルール】
+#  * このファイルをGitにコミットしてからバックテストを実行する。
+#  * 結果を見て閾値を変えたくなったら、このファイルは編集せず
+#    rules_v2.yaml を新規作成し、v1と同じ方法で比較する。
+#  * 下の数値は「一般的な慣習値・切りの良い数字」で事前に決めたもの。
+#    過去データに合わせて探索した値ではない。
+#  * V1はQuality(業績/財務)を評価しない。過去時点の財務データが無いため
+#    (現在のFinnhub指標をバックテストに使うと未来情報の混入になる)。
+#    Qualityと、シグナルタイプ VALUE は v2 で SEC過去財務を使って追加する。
+# =====================================================================
+version: v1
+frozen_on: "2026-10-04"
+
+universe:
+  exclude_etf: true
+  exclude_name_regex: "Warrant|Right|Unit|Preferred|Depositary|Notes|ETF|Fund|Acquisition"
+  # 取得対象を広めに。基準日時点の時価総額判定は gate.min_market_cap で行う
+  current_market_cap_min: 300000000
+  price_history_start: "2016-06-01"
+
+# ---------------------------- Gate（足切り） ---------------------------
+gate:
+  min_price: 5.0                      # ペニー株除外
+  min_market_cap: 1000000000          # 基準日時点の推定 = 株価 x 現在の発行済株式数(推定)
+  min_avg_dollar_volume_50d: 10000000 # 50日平均売買代金 $10M以上
+  # 指標計算に必要な履歴(252営業日)が無い銘柄は自動的に対象外
+
+indicators:
+  rsi_period: 14           # Wilder
+  sma_short: 20
+  sma_mid: 50
+  sma_long: 200
+  high_lookback: 252       # 直近高値 = 過去252営業日の終値最高値
+  slope_lookback: 20       # 200日線の傾き = sma200 / 20日前のsma200 - 1
+  volume_fast: 5
+  volume_slow: 50          # 出来高比 = 5日平均 / 50日平均
+  ret_short: 5
+  ret_mid: 20              # SPYとの相対比較に使う
+
+# -------------------- Timing スコア（合計100点） ----------------------
+# bins は lo <= x < hi（nullは無限大）。最初に当てはまった行の点数。
+score:
+  trend:                              # 最大30
+    above_sma200: 10                  # 終値 > 200日線
+    sma200_rising: 10                 # 200日線の傾き > 0
+    sma50_above_sma200: 10            # 50日線 > 200日線
+  depth_bins:                         # 直近高値からの下落率  最大25
+    - {lo: -0.20, hi: -0.08, points: 25}
+    - {lo: -0.08, hi: -0.05, points: 12}
+    - {lo: -0.30, hi: -0.20, points: 12}
+  rsi_bins:                           # RSI14  最大20
+    - {lo: 0,  hi: 30, points: 20}
+    - {lo: 30, hi: 40, points: 14}
+    - {lo: 40, hi: 50, points: 7}
+  volume_bins:                        # 出来高比(5日/50日)  最大15
+    - {lo: 0.0, hi: 1.0, points: 15}  # 売り圧力が弱まっている
+    - {lo: 1.0, hi: 1.5, points: 8}
+  rel_bins:                           # 20日リターン - SPY20日リターン  最大10
+    - {lo: -0.03, hi: null, points: 10}
+    - {lo: -0.08, hi: -0.03, points: 5}
+
+# --------------------------- Red Flag（技術的） -------------------------
+# 1つ該当 -> 最高でもC / 2つ以上 -> D
+red_flags:
+  long_downtrend:         {sma200_slope_below: 0.0}   # 終値<200日線 かつ 200日線が下向き
+  idiosyncratic_weakness: {rel_dd_at_or_below: -0.25} # 高値からの下落率がSPYより25pt以上悪い
+  deep_drawdown:          {dd_at_or_below: -0.40}     # 高値から40%以上下落
+  crash_5d:               {ret5_at_or_below: -0.15}   # 5日で15%以上急落(材料の可能性)
+
+# ----------------------------- Quality（v1は未評価） --------------------
+# 過去時点の財務データが無く、現在のFinnhub指標をバックテストに使うと未来情報が混ざるため、
+# v1ではQualityをスコア・判定に使わない。v2でSEC過去財務(提出日つき)により、
+# バックテスト前に閾値を決めて rules_v2.yaml に記録する。
+quality:
+  enabled: false
+  planned_items_v2: [売上成長, 営業利益率, 純利益率, FCF, 負債/株主資本, 発行済株式数の増減]
+  missing_data_policy: "取得できない項目は『判定不能』とし、推定値で埋めない"
+
+# ----------------------------- シグナル分類 ----------------------------
+signal_types:
+  require_no_red_flags: true          # Red Flagが1つでもあればタイプを付けない
+  PULLBACK:                           # 長期上昇トレンド中の健全な押し目
+    enabled: true
+    dd_min: -0.20
+    dd_max: -0.08
+    rsi_max: 50
+    require_above_sma200: true
+    require_sma200_rising: true
+    require_sma50_above_sma200: true
+    require_below_sma20: true
+  OVERSOLD:                           # 短期的な売られ過ぎ
+    enabled: true
+    rsi_below: 30
+  MARKET_DIP:                         # 市場全体の調整に連れた下落
+    enabled: true
+    spy_dd_at_or_below: -0.07
+    stock_dd_at_or_below: -0.07
+    rel_dd_at_or_above: -0.10         # 銘柄の下落がSPYより10pt以上悪くない
+  RECOVERY:                           # 下落後のトレンド回復の兆候
+    enabled: true
+    dd_at_or_below: -0.15
+    rsi_min10_below: 35               # 直近10日で一度RSI35未満
+    require_above_sma20: true
+    require_rsi_rising_5d: true       # RSIが5日前より上
+  VALUE:                              # v2(SEC過去財務)で実装
+    enabled: false
+  # 2つ以上が同時に該当 -> primary_type = MIXED
+
+# ------------------------------ A/B/C/D --------------------------------
+# 満たす最上位を採用。どれも満たさなければD（Red Flag 2つ以上は必ずD）。
+grades:
+  A: {min_score: 80, max_red_flags: 0, require_signal_type: true}
+  B: {min_score: 65, max_red_flags: 0, require_signal_type: true}
+  C: {min_score: 45, max_red_flags: 1, require_signal_type: false}
+
+# ------------------------------ 決算前 ---------------------------------
+earnings:
+  block_days_before: 7                # 次回決算まで7日以内
+  action: downgrade_one_grade         # A->B, B->C, C->D
+  applied_in_backtest: false          # 過去の決算日が取れないためv1バックテストは未適用(v2でSEC 8-K Item2.02)
+  applied_in_live: true
+
+# ----------------------------- ベースライン ----------------------------
+baselines:
+  simple_rsi: {rsi_below: 30}         # Gate通過銘柄のうちRSI<30を全部買う
+
+# ----------------------------- バックテスト ----------------------------
+backtest:
+  signal_every_n_trading_days: 21     # 約月1回(1か月保有が重ならない)
+  horizons_trading_days: {1m: 21, 3m: 63, 6m: 126}
+  entry: next_open                    # シグナル翌営業日の始値
+  exit: close_at_horizon
+  cost_per_side_bps: 10               # 手数料+スリッページ 片道0.10%
+  periods:
+    dev:                              # ルール設計/動作確認用(バグ確認に使う。閾値調整には使わない)
+      signal_start: "2017-07-03"
+      signal_end: "2022-12-30"
+    final:                            # 最終検証。一度だけ。使用後はロックされる
+      signal_start: "2023-01-02"
+      signal_end: "2026-03-31"

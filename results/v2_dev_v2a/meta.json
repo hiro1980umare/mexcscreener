@@ -1,0 +1,22 @@
+{
+ "rules_version": "v2",
+ "rules_file": "config/rules_v2.yaml",
+ "rules_sha256": "9072ccf1fbf3aecb592fbb6b9c3116fb297468494f33195da0f3f02ae75e6faa",
+ "period": "dev",
+ "git_commit": "d9e3f16b43a9ab5c41ab2cbfb9187f243daa41d1",
+ "git_clean": true,
+ "signal_range": "2017-07-03 ~ 2026-03-31",
+ "n_signal_dates": 105,
+ "n_gate_rows": 123194,
+ "n_tickers_in_data": 2974,
+ "n_sec": 2940,
+ "data_dir": "data_v2",
+ "data_end": "2026-10-07",
+ "run_at": "2026-10-08 04:53:31",
+ "notes": [
+  "Gate: 当時の株価(分割調整前) x 提出済みの最新の発行済株式数。株式数が取れない銘柄はGateを通さない(推定しない)。",
+  "Quality: 必要な5項目が1つでも取れなければ判定不能(最高でもC)。",
+  "現在の上場銘柄のみが対象のため生存者バイアスが残る(特に古い期間)。",
+  "決算前除外はバックテスト未適用。費用は片道0.10%を往復で控除。"
+ ]
+}

@@ -1,0 +1,69 @@
+# =====================================================================
+# criteria_v2.yaml  --  V2 成功基準（事前登録）
+# ---------------------------------------------------------------------
+# ★このファイルは一度コミットしたら【二度と変更しない】。
+#   - 変更すると v2_manifest.json のハッシュと一致せず、最終検証が実行できなくなる。
+#   - dev期間(2017年以降)の結果を見ても、基準は変更しない。
+#   - ルール(rules_v2*.yaml)は dev期間の結果で調整してよいが、最終検証は
+#     『1つの候補ルールを凍結 → 1回だけ実行』とし、結果を見てのルール変更は禁止。
+# ---------------------------------------------------------------------
+# 検証したい問い:
+#   「Quality高 x Timing高」は、全銘柄を持つだけの方法や、RSIだけの方法より、
+#   意味のある差を出せるか。
+# =====================================================================
+version: criteria_v2
+registered_on: "2026-10-07"
+
+primary_test:
+  group: V2_A                  # Quality高 x Timing高（Timing高 = v1判定のAまたはB）
+  horizon: 3m                  # 主要検証は3か月後のみ。1m/6mは参考（合否に使わない）
+  metric: "日ごとの『グループ平均リターン - ベースライン平均リターン』"
+  min_signals_per_day: 10      # 1日にグループのシグナルが10件未満の日は集計から除く
+  min_days_required: 40        # 採用日数が40日未満なら不合格
+
+baselines:
+  tier1: ALL_GATE              # Tier1(主要な成功判定): Gate通過の全銘柄を等金額で保有する方法に対して、下の6基準を満たすか
+  tier2: SIMPLE_RSI            # Tier2(追加判定): Tier1を満たした場合にだけ評価する。RSIだけの方法よりも意味のある差があるか
+
+# ---- 合格基準（すべて満たすこと） ----
+criteria:
+  c1_mean_diff_min: 0.01             # 平均差が +1% 以上
+  c2_ci_lower_above: 0.0             # 95%区間の下限が 0 を超える
+  c3_median_diff_min: 0.0            # 中央値差が 0 以上
+  c4_positive_year_share_min: 0.6    # 暦年の6割以上でプラス（その年の採用日数が6日以上の年のみ数える）
+  c4_min_days_per_year: 6
+  c5_max_dd_worse_than_baseline_pt: 5.0   # コホート最大DDがベースラインより5ポイント以上悪化したら不合格(ちょうど5.0悪化も不合格)
+  c6_final_same_sign: true           # 最終検証(シグナル2011-01〜2015-11、結果は2016-05まで)でも平均差が同じ符号（プラス）
+  c6_min_days_final: 20              # 最終検証の採用日数が20日未満なら『判定不能』= 成功と主張しない
+
+# ---- 判定の定義（二段階評価） ----
+verdict:
+  tier1_dev_pass: [c1, c2, c3, c4, c5]    # dev期間(2017-)で、ALL_GATEに対してc1〜c5をすべて満たす
+  tier1_pass:     [tier1_dev_pass, c6]    # さらに最終検証でc6を満たす = これが V2 の主要な成功判定
+  tier2_rule: >-
+    Tier2は『Tier1を満たした場合にだけ』評価する。Tier1を満たさなければTier2は評価しない(判定対象外)。
+    Tier1を満たした場合、同じ基準(c1〜c6)をSIMPLE_RSIに対しても満たせば
+    『RSI単独よりも意味のある差がある』と主張できる(devでc1〜c5、最終検証でc6)。
+  outcomes:
+    tier1_not_met:          "成功と主張しない。『この方法では優位性を示せなかった』と報告する(Tier2は評価しない)"
+    tier1_dev_met_final_pending: "devでTier1を満たした。最終検証の結果が出るまで成功とは主張しない"
+    tier1_met_tier2_met:    "V2は全銘柄ベースラインに対して優位性があり、RSI単独に対しても意味のある差がある"
+    tier1_met_tier2_not_met: "V2自体には優位性があるが、RSI単独を明確には上回らない(RSI単独のほうが強い場合を含む)"
+    undetermined:           "最終検証の採用日数が不足しているため判定不能。成功とは主張しない"
+
+# ---- 統計手法（固定） ----
+bootstrap:
+  method: moving_block_by_date
+  block_length_dates: 3        # 3か月保有はリターン期間が重なるため3日付(約3か月)のブロック
+  n_resamples: 5000
+  seed: 20261007
+  ci: 0.95
+
+# ---- 参考として必ず併記するもの（合否には使わない） ----
+report_only:
+  groups: [V2_B, V2_C, V2_D, Q_HIGH_ONLY, T_HIGH_ONLY, Q_LOW_T_HIGH, Q_UNDET_T_HIGH, DETERMINABLE_ALL]
+  horizons: [1m, 3m, 6m]
+
+# ---- 多重検定の記録 ----
+multiple_testing:
+  note: "devで試したルール版の数を最終報告に必ず記載する(run_log.csvから自動集計)"

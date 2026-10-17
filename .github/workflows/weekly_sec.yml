@@ -1,0 +1,28 @@
+name: weekly-sec-refresh
+# 週1回、SEC財務のキャッシュを更新する(約20分)。★未検証。最初は workflow_dispatch で試してください。
+on:
+  schedule:
+    - cron: "0 3 * * 6"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: SEC財務を取得(config/bot_universe.csv の銘柄)
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python fetch_sec.py --data data_v2 --sec-dir sec_v2b --tickers-file config/bot_universe.csv
+      - name: キャッシュに保存
+        uses: actions/cache/save@v4
+        with:
+          path: data_v2/sec_v2b
+          key: sec-v2b-${{ github.run_id }}

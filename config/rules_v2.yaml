@@ -1,0 +1,100 @@
+# =====================================================================
+# rules_v2.yaml  --  V2 ルール候補 #0（Quality追加 + 時価総額を当時の株式数で計算）
+# ---------------------------------------------------------------------
+#  * Timing（テクニカル）は rules_v1.yaml をそのまま使う（ハッシュを照合する）。
+#    V2で新しいのは「Quality」と「当時の発行済株式数によるGate」だけ。
+#  * 閾値は慣習値・切りの良い数字で、過去データに合わせて探索していない。
+#  * 判定不能(必要項目が1つでも取れない)は推定で埋めず、最高でもC。
+#  * 変更したくなったら rules_v2b.yaml のように新規ファイルを作る(dev期間のみ)。
+# =====================================================================
+version: v2
+frozen_on: "2026-10-07"   # 実際の凍結は freeze_v2.py + git commit の時点
+
+timing_source:
+  file: config/rules_v1.yaml
+  sha256: d40847b9f96836a320f8a44c7b470270e2630a608ba818b01d15c8683e30def5
+
+periods:
+  dev:   {signal_start: "2017-07-03", signal_end: "2026-03-31"}
+  # ★最終検証期間は物理的に封印する:
+  #   * devのデータ(data_v2/)は 2016-06-01 以降の株価だけ。2011〜2016年の値動きはdev環境に存在しない。
+  #   * 最終検証用の株価(data_v2_final/)は、最終候補ルールを凍結・コミットするまで取得できない
+  #     (fetch_data_v2.py --period final が拒否する)。
+  #   * finalのシグナル終了日は、先6か月の保有期間の終わり(outcome_end)がdevデータの開始(2016-06-01)より前になるよう
+  #     2015-11-13にしている。2015-11-14〜2017-06は、どちらにも使わない緩衝期間。
+  final: {signal_start: "2011-01-03", signal_end: "2015-11-13", outcome_end: "2016-05-31"}
+
+data:
+  sec_user_agent_env: SEC_USER_AGENT
+  sec_dir: data_v2/sec                # 財務(提出日つき)。結果(株価)ではないので両期間で共有してよい
+  dev:   {dir: data_v2,       price_history_start: "2016-06-01"}
+  final: {dir: data_v2_final, price_history_start: "2009-06-01"}   # 指標の助走期間(約1年)を含む。凍結後にだけ取得できる
+
+# ---- Gate: 閾値はv1と同じ。時価総額の計算だけ変える ----
+gate:
+  min_price_unadjusted: 5.0           # 当時の実際の株価(分割調整前)
+  min_market_cap: 1000000000
+  min_avg_dollar_volume_50d: 10000000
+  market_cap_formula: "当時の株価(分割調整前) x 提出済みの最新の発行済株式数(基準日より前に提出された10-K/10-Q)"
+  shares_tags: [dei:EntityCommonStockSharesOutstanding, us-gaap:CommonStockSharesOutstanding]
+  shares_max_age_days: 548            # 株式数の基準日が548日より古ければ『不明』= Gate不通過(推定しない)
+  missing_policy: "株式数が取れない銘柄はGateを通さない(推定で埋めない)"
+
+# ---- Quality（0-100点。5項目x各20点。全項目が取れた場合のみ判定） ----
+quality:
+  max_annual_age_days: 456            # 最新の10-Kの提出が基準日の456日(約15か月)より前なら判定不能
+  require_all_items: true             # 1項目でも欠けたら判定不能
+  balance_sheet_max_age_days: 548
+  items:
+    revenue_growth:                   # 売上成長率(前年比)  最新10-K vs 1年前の10-K
+      bins:
+        - {lo: 0.15, hi: null, points: 20}
+        - {lo: 0.05, hi: 0.15, points: 14}
+        - {lo: 0.0,  hi: 0.05, points: 8}
+        - {lo: null, hi: 0.0,  points: 0}
+    operating_margin:                 # 営業利益率 = 営業利益 / 売上
+      bins:
+        - {lo: 0.20, hi: null, points: 20}
+        - {lo: 0.10, hi: 0.20, points: 14}
+        - {lo: 0.05, hi: 0.10, points: 8}
+        - {lo: 0.0,  hi: 0.05, points: 4}
+        - {lo: null, hi: 0.0,  points: 0}
+    fcf_margin:                       # FCF率 = (営業CF - 設備投資) / 売上
+      bins:
+        - {lo: 0.15, hi: null, points: 20}
+        - {lo: 0.08, hi: 0.15, points: 14}
+        - {lo: 0.02, hi: 0.08, points: 8}
+        - {lo: 0.0,  hi: 0.02, points: 4}
+        - {lo: null, hi: 0.0,  points: 0}
+    equity_ratio:                     # 自己資本比率 = 株主資本 / 総資産(負債の重さの代わり。取得率が高い)
+      bins:
+        - {lo: 0.50, hi: null, points: 20}
+        - {lo: 0.30, hi: 0.50, points: 14}
+        - {lo: 0.15, hi: 0.30, points: 8}
+        - {lo: 0.0,  hi: 0.15, points: 4}
+        - {lo: null, hi: 0.0,  points: 0}
+    share_dilution:                   # 発行済株式数の1年間の増減率(分割は調整)。希薄化が小さいほど高得点
+      bins:
+        - {lo: null, hi: 0.001, points: 20}
+        - {lo: 0.001, hi: 0.03, points: 14}
+        - {lo: 0.03, hi: 0.10, points: 8}
+        - {lo: 0.10, hi: 0.25, points: 4}
+        - {lo: 0.25, hi: null, points: 0}
+  grades:
+    high_min: 70                      # 70点以上 = HIGH
+    low_below: 45                     # 45点未満 = LOW、その間 = MID
+
+# ---- V2のA/B/C/D（Timing = v1判定。Timing高 = v1のAまたはB） ----
+grades_v2:
+  # Timing高 = v1判定のAまたはB。判定不能は「最高でもC」(上限)であり、判定可能な中程度より上にはしない。
+  A: "Quality HIGH かつ v1判定がAまたはB"                                  # = 主要検証グループ V2_A
+  B: "(Quality HIGH かつ v1判定がC) または (Quality MID かつ v1判定がAまたはB)"
+  C: "(Quality判定不能 かつ v1判定がA/B/C) または (Quality MID かつ v1判定がC)"
+  D: "Quality LOW、またはv1判定がD"
+
+backtest:
+  signal_every_n_trading_days: 21
+  horizons_trading_days: {1m: 21, 3m: 63, 6m: 126}
+  entry: next_open
+  exit: close_at_horizon
+  cost_per_side_bps: 10

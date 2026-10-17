@@ -1,0 +1,46 @@
+{
+ "created": "2026-10-08 04:50:08",
+ "criteria": {
+  "file": "config/criteria_v2.yaml",
+  "sha256": "8fa9e30a8dfb02d3f9a329259566c0e919e28d1a0fc42aebf58baa2c8abc0957"
+ },
+ "timing_source": {
+  "file": "config/rules_v1.yaml",
+  "sha256": "d40847b9f96836a320f8a44c7b470270e2630a608ba818b01d15c8683e30def5"
+ },
+ "code_hashes_at_registration": {
+  "evaluate_criteria.py": "69bb2e9a5381320c20d99e86013e43a8bf8d60bddf3f8fa28a7b85579ba0b22b",
+  "run_v2.py": "c61e2e08bfc77d4414f316eb7315bc6be958253e8f215cf718687c694fb121b9",
+  "src/sec_pit.py": "7694f7857f56ee8c096a6930f0b8fc14efe4db24f01c873976285cf699972daf",
+  "src/v2.py": "20d48664a6c94b93c3af8a538548eb35f38733c83c67d7102b3f6492ad53fea8",
+  "src/signals.py": "4df95511e1b2b9955a6ff82999c4b56b11e8916226362e26e62f073794880dc6",
+  "src/indicators.py": "a3a10f40a3819c03d74ee7b983f36ae576e48be7b9b31bac679f5ea7f73aeae9",
+  "src/backtest.py": "9b19d461788896dca4c5f441e4313f60c9148a57ac43fc9c0d9831f027165f55",
+  "src/data_v2.py": "9077f9df68b0d72bd251411ec6938f4f8a46543b8c4aacf9b9719ea2a4aa27f4"
+ },
+ "final_candidate": null,
+ "v2b": {
+  "registered_at": "2026-10-09 10:58:10",
+  "rules": {
+   "file": "config/rules_v2b.yaml",
+   "sha256": "735b18d3fafc1f5f15a54612827ef6aa8e6a86f57d9324f1fa5fed316c7c746b"
+  },
+  "criteria": {
+   "file": "config/criteria_v2b.yaml",
+   "sha256": "b60122e21a7f245469cdb7dec1570ed654305228a859556522f919f45cabc03d"
+  },
+  "preregistration": {
+   "file": "docs/v2b_preregistration.md",
+   "sha256": "87e3fa14d4532a181dbb145ef674abf6d1684d0a0688bd2c519bdab7740f1bce"
+  },
+  "v2_rules": {
+   "file": "config/rules_v2.yaml",
+   "sha256": "9072ccf1fbf3aecb592fbb6b9c3116fb297468494f33195da0f3f02ae75e6faa"
+  },
+  "max_dev_versions": 2,
+  "dev_versions_allowed": [
+   "9072ccf1fbf3aecb592fbb6b9c3116fb297468494f33195da0f3f02ae75e6faa",
+   "735b18d3fafc1f5f15a54612827ef6aa8e6a86f57d9324f1fa5fed316c7c746b"
+  ]
+ }
+}

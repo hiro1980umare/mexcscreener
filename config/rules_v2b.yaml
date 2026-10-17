@@ -1,0 +1,70 @@
+# =====================================================================
+# rules_v2b.yaml  --  V2b（★最後の開発版。V2cは作らない）
+# ---------------------------------------------------------------------
+#  * Timing（テクニカル）は rules_v1.yaml をそのまま使う（ハッシュを照合する）。
+#    V2で新しいのは「Quality」と「当時の発行済株式数によるGate」だけ。
+#  * 閾値は慣習値・切りの良い数字で、過去データに合わせて探索していない。
+#  * 判定不能(必要項目が1つでも取れない)は推定で埋めず、最高でもC。
+#  * V2からの変更は quality ブロックだけ(+ version, SECデータの保存先)。V2の結果を見た後に設計された2回目のdev試行。
+#  * 登録(freeze_v2.py --register-v2b)後は1文字も変更できない。結果を見てのルール変更は禁止。詳細: docs/v2b_preregistration.md
+# =====================================================================
+version: v2b
+derived_from: {file: config/rules_v2.yaml, sha256: 9072ccf1fbf3aecb592fbb6b9c3116fb297468494f33195da0f3f02ae75e6faa}
+frozen_on: "2026-10-07"   # 実際の凍結は freeze_v2.py + git commit の時点
+
+timing_source:
+  file: config/rules_v1.yaml
+  sha256: d40847b9f96836a320f8a44c7b470270e2630a608ba818b01d15c8683e30def5
+
+periods:
+  dev:   {signal_start: "2017-07-03", signal_end: "2026-03-31"}
+  # ★最終検証期間は物理的に封印する:
+  #   * devのデータ(data_v2/)は 2016-06-01 以降の株価だけ。2011〜2016年の値動きはdev環境に存在しない。
+  #   * 最終検証用の株価(data_v2_final/)は、最終候補ルールを凍結・コミットするまで取得できない
+  #     (fetch_data_v2.py --period final が拒否する)。
+  #   * finalのシグナル終了日は、先6か月の保有期間の終わり(outcome_end)がdevデータの開始(2016-06-01)より前になるよう
+  #     2015-11-13にしている。2015-11-14〜2017-06は、どちらにも使わない緩衝期間。
+  final: {signal_start: "2011-01-03", signal_end: "2015-11-13", outcome_end: "2016-05-31"}
+
+data:
+  sec_user_agent_env: SEC_USER_AGENT
+  sec_dir: data_v2/sec_v2b              # 財務(提出日つき)。結果(株価)ではないので両期間で共有してよい
+  dev:   {dir: data_v2,       price_history_start: "2016-06-01"}
+  final: {dir: data_v2_final, price_history_start: "2009-06-01"}   # 指標の助走期間(約1年)を含む。凍結後にだけ取得できる
+
+# ---- Gate: 閾値はv1と同じ。時価総額の計算だけ変える ----
+gate:
+  min_price_unadjusted: 5.0           # 当時の実際の株価(分割調整前)
+  min_market_cap: 1000000000
+  min_avg_dollar_volume_50d: 10000000
+  market_cap_formula: "当時の株価(分割調整前) x 提出済みの最新の発行済株式数(基準日より前に提出された10-K/10-Q)"
+  shares_tags: [dei:EntityCommonStockSharesOutstanding, us-gaap:CommonStockSharesOutstanding]
+  shares_max_age_days: 548            # 株式数の基準日が548日より古ければ『不明』= Gate不通過(推定しない)
+  missing_policy: "株式数が取れない銘柄はGateを通さない(推定で埋めない)"
+
+# ---- Quality（0-100点。5項目x各20点。全項目が取れた場合のみ判定） ----
+quality:
+  # ★V2bで変えるのは、この quality ブロックだけ(+ version と SECデータの保存先)。
+  mode: rank_v2b
+  n_groups: 3                  # 三分位。上位1/3=HIGH、下位1/3=LOW、真ん中=MID。調整できる数値はこれだけ
+  min_cross_section: 100       # その日の判定可能な銘柄がこれ未満なら、その日は全て判定不能
+  max_annual_age_days: 456     # 最新の10-Kがこれより古ければ判定不能(V2と同じ)
+  items:                       # 3要素。各要素を同日のGate通過銘柄の中で順位(0〜1)にして等金額平均
+    profitability: "営業利益 / 総資産(最新10-Kの期末)  高いほど良い  [Novy-Marx 2013; Fama-French 2015]"
+    accruals:      "(純利益 - 営業CF) / 総資産        低いほど良い  [Sloan 1996]"
+    dilution:      "発行済株式数の1年変化率(分割調整) 低いほど良い  [Pontiff & Woodgate 2008]"
+  undetermined_rule: "3要素のどれか1つでも取れなければ判定不能(推定しない)。判定不能は最高でもC(V2と同じ判定表)"
+
+grades_v2:
+  # Timing高 = v1判定のAまたはB。判定不能は「最高でもC」(上限)であり、判定可能な中程度より上にはしない。
+  A: "Quality HIGH かつ v1判定がAまたはB"                                  # = 主要検証グループ V2_A
+  B: "(Quality HIGH かつ v1判定がC) または (Quality MID かつ v1判定がAまたはB)"
+  C: "(Quality判定不能 かつ v1判定がA/B/C) または (Quality MID かつ v1判定がC)"
+  D: "Quality LOW、またはv1判定がD"
+
+backtest:
+  signal_every_n_trading_days: 21
+  horizons_trading_days: {1m: 21, 3m: 63, 6m: 126}
+  entry: next_open
+  exit: close_at_horizon
+  cost_per_side_bps: 10
