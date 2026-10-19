@@ -22,6 +22,9 @@ jobs:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           TEST_MODE: "0"
+      - name: recorder
+        continue-on-error: true
+        run: python recorder.py
       - name: report
         continue-on-error: true
         run: python report.py
@@ -33,13 +36,13 @@ jobs:
           git config user.name "bot"
           git config user.email "bot@users.noreply.github.com"
           mkdir -p /tmp/state
-          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json report_state.json; do
+          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json report_state.json signals.csv market_bars.csv recorder_state.json; do
             if [ -f "$f" ]; then cp "$f" /tmp/state/; fi
           done
           git fetch origin ${{ github.ref_name }}
           git reset --hard origin/${{ github.ref_name }}
           cp /tmp/state/* . 2>/dev/null || true
-          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json report_state.json; do
+          for f in notified.json watch.json rebound.json paper_open.json paper_trades.csv paper_stats.json report_state.json signals.csv market_bars.csv recorder_state.json; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if git diff --cached --quiet; then
