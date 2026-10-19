@@ -15,10 +15,24 @@ JST = timezone(timedelta(hours=9))
 
 
 def send(text):
-    r = requests.post(
-        "https://api.telegram.org/bot" + TOKEN + "/sendMessage",
-        data={"chat_id": CHAT, "text": text}, timeout=20)
-    return r.status_code
+    parts = []
+    cur = ""
+    for line in text.split("\n"):
+        if len(cur) + len(line) + 1 > 3000:
+            parts.append(cur)
+            cur = ""
+        cur += line + "\n"
+    if cur:
+        parts.append(cur)
+    code = 200
+    for p in parts:
+        r = requests.post(
+            "https://api.telegram.org/bot" + TOKEN + "/sendMessage",
+            data={"chat_id": CHAT, "text": p}, timeout=20)
+        print("送信", len(p), "文字:", r.status_code, r.text[:200])
+        if r.status_code != 200:
+            code = r.status_code
+    return code
 
 
 def get_price(sym):
