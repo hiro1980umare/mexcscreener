@@ -1,157 +1,5 @@
 [
  {
-  "id": "PYTHUSDT_1793325617",
-  "sym": "PYTHUSDT",
-  "buy_ts": 1793330616.1352482,
-  "buy_price": 0.06012,
-  "qty": 16.633399866932802,
-  "buy_fee": 0.001,
-  "break_level": 0.06043,
-  "high": 0.06764,
-  "low": 0.06012,
-  "last_price": 0.06335,
-  "now": {
-   "price": 0.06335,
-   "value": 1.053726,
-   "pnl": 0.051672,
-   "pnl_pct": 5.1672,
-   "elapsed_hours": 167.57
-  }
- },
- {
-  "id": "SHIBUSDT_1793325617",
-  "sym": "SHIBUSDT",
-  "buy_ts": 1793330616.1352482,
-  "buy_price": 4.603e-06,
-  "qty": 217249.61981316534,
-  "buy_fee": 0.001,
-  "break_level": 4.599e-06,
-  "high": 4.81e-06,
-  "low": 4.511e-06,
-  "last_price": 4.611e-06,
-  "now": {
-   "price": 4.611e-06,
-   "value": 1.001738,
-   "pnl": -0.000264,
-   "pnl_pct": -0.0264,
-   "elapsed_hours": 167.57
-  }
- },
- {
-  "id": "CRVUSDT_1793328096",
-  "sym": "CRVUSDT",
-  "buy_ts": 1793333551.1312256,
-  "buy_price": 0.2761,
-  "qty": 3.621876131836291,
-  "buy_fee": 0.001,
-  "break_level": 0.2772,
-  "high": 0.2916,
-  "low": 0.2529,
-  "last_price": 0.2558,
-  "now": {
-   "price": 0.2558,
-   "value": 0.926476,
-   "pnl": -0.075451,
-   "pnl_pct": -7.5451,
-   "elapsed_hours": 166.75
-  }
- },
- {
-  "id": "ZIGUSDT_1793328096",
-  "sym": "ZIGUSDT",
-  "buy_ts": 1793333551.1312256,
-  "buy_price": 0.041197,
-  "qty": 24.27361215622497,
-  "buy_fee": 0.001,
-  "break_level": 0.04132,
-  "high": 0.043056,
-  "low": 0.039065,
-  "last_price": 0.039065,
-  "now": {
-   "price": 0.039065,
-   "value": 0.948249,
-   "pnl": -0.0537,
-   "pnl_pct": -5.37,
-   "elapsed_hours": 166.75
-  }
- },
- {
-  "id": "WFIUSDT_1793330616",
-  "sym": "WFIUSDT",
-  "buy_ts": 1793336024.6160083,
-  "buy_price": 2.0143,
-  "qty": 0.49645037978454054,
-  "buy_fee": 0.001,
-  "break_level": 2.0503,
-  "high": 2.0481,
-  "low": 2.0134,
-  "last_price": 2.0271,
-  "now": {
-   "price": 2.0271,
-   "value": 1.006355,
-   "pnl": 0.004348,
-   "pnl_pct": 0.4348,
-   "elapsed_hours": 166.06
-  }
- },
- {
-  "id": "TIAUSDT_1793336024",
-  "sym": "TIAUSDT",
-  "buy_ts": 1793340684.0672174,
-  "buy_price": 0.4594,
-  "qty": 2.1767522855899,
-  "buy_fee": 0.001,
-  "break_level": 0.4629,
-  "high": 0.4796,
-  "low": 0.4125,
-  "last_price": 0.4224,
-  "now": {
-   "price": 0.4224,
-   "value": 0.91946,
-   "pnl": -0.082459,
-   "pnl_pct": -8.2459,
-   "elapsed_hours": 164.77
-  }
- },
- {
-  "id": "XMRUSDT_1793340684",
-  "sym": "XMRUSDT",
-  "buy_ts": 1793346750.8493338,
-  "buy_price": 587.3,
-  "qty": 0.001702707304614337,
-  "buy_fee": 0.001,
-  "break_level": 595.18,
-  "high": 641.83,
-  "low": 575.98,
-  "last_price": 620.17,
-  "now": {
-   "price": 620.17,
-   "value": 1.055968,
-   "pnl": 0.053912,
-   "pnl_pct": 5.3912,
-   "elapsed_hours": 163.09
-  }
- },
- {
-  "id": "AEROUSDT_1793343552",
-  "sym": "AEROUSDT",
-  "buy_ts": 1793355497.104325,
-  "buy_price": 0.6202,
-  "qty": 1.6123831022250887,
-  "buy_fee": 0.001,
-  "break_level": 0.6286,
-  "high": 0.6613,
-  "low": 0.589,
-  "last_price": 0.592,
-  "now": {
-   "price": 0.592,
-   "value": 0.954531,
-   "pnl": -0.047424,
-   "pnl_pct": -4.7424,
-   "elapsed_hours": 160.66
-  }
- },
- {
   "id": "AVAXUSDT_1793366986",
   "sym": "AVAXUSDT",
   "buy_ts": 1793373400.5010448,
@@ -161,13 +9,13 @@
   "break_level": 8.269,
   "high": 8.917,
   "low": 8.232,
-  "last_price": 8.323,
+  "last_price": 8.352,
   "now": {
-   "price": 8.323,
-   "value": 0.992961,
-   "pnl": -0.009032,
-   "pnl_pct": -0.9032,
-   "elapsed_hours": 155.68
+   "price": 8.352,
+   "value": 0.996421,
+   "pnl": -0.005576,
+   "pnl_pct": -0.5576,
+   "elapsed_hours": 163.03
   }
  }
 ]
